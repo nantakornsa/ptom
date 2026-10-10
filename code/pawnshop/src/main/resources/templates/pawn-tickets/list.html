@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>รายการตั๋วจำนำ</title>
+    <link rel="stylesheet" th:href="@{/css/ticket.css}">
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="page-head">
+        <div>
+            <span class="eyebrow">PAWN TICKETS</span>
+            <h1 class="page-title">รายการตั๋วจำนำ</h1>
+            <p class="page-sub">ค้นหาและติดตามสถานะตั๋วจำนำทั้งหมด</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn btn-primary" th:href="@{/pawn-tickets/new}">+ รับจำนำ</a>
+        </div>
+    </div>
+
+    <div class="alert alert-success" role="status" th:if="${success}">
+        <span class="alert-body" th:text="${success}">สำเร็จ</span>
+    </div>
+    <div class="alert alert-error" role="alert" th:if="${error}">
+        <span class="alert-body" th:text="${error}">เกิดข้อผิดพลาด</span>
+    </div>
+
+    <form class="toolbar" th:action="@{/pawn-tickets}" method="get" role="search">
+        <label for="number" class="sr-only">เลขที่ตั๋ว</label>
+        <input id="number" class="control" name="number" th:value="${number}" placeholder="ค้นหาเลขที่ตั๋ว เช่น PT000001">
+        <button class="btn btn-dark" type="submit">ค้นหา</button>
+    </form>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>เลขที่</th>
+                <th>ลูกค้า</th>
+                <th>ทรัพย์</th>
+                <th class="num">เงินต้น (บาท)</th>
+                <th>ครบกำหนด</th>
+                <th>สถานะ</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${tickets.content}">
+                <td><a class="link" th:href="@{/pawn-tickets/{id}(id=${t.id})}" th:text="${t.ticketNumber}">PT000001</a></td>
+                <td th:text="${t.customerName}">-</td>
+                <td th:text="${t.itemDescription}">-</td>
+                <td class="num" th:text="${#numbers.formatDecimal(t.principal, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                <td th:text="${#temporals.format(t.dueDate, 'dd/MM/yyyy')}">-</td>
+                <td><span class="badge" th:classappend="${'status-' + #strings.toLowerCase(t.status)}" th:text="${t.statusDisplay}">-</span></td>
+            </tr>
+            <tr th:if="${tickets.empty}">
+                <td colspan="6" class="empty">ยังไม่มีตั๋วจำนำ</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav th:if="${tickets.totalPages > 1}" aria-label="เปลี่ยนหน้า">
+        <ul class="pagination">
+            <li th:classappend="${tickets.first} ? 'disabled'">
+                <a th:href="@{/pawn-tickets(page=${tickets.number - 1})}">ก่อนหน้า</a>
+            </li>
+            <li class="active">
+                <span th:text="|${tickets.number + 1} / ${tickets.totalPages}|">1 / 1</span>
+            </li>
+            <li th:classappend="${tickets.last} ? 'disabled'">
+                <a th:href="@{/pawn-tickets(page=${tickets.number + 1})}">ถัดไป</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+</body>
+</html>
